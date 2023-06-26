@@ -7,11 +7,48 @@ namespace fileQuery20230621
 {
     public class QueryInfo
     {
-        public string info { get; set; }
+        private string _info;
+
+        private string _value;
+
+        public string Info
+        {
+            get
+            {
+                return this._info;
+            }
+            set
+            {
+                this._info = value;
+            }
+        }
+
+        public string Value
+        {
+            get
+            {
+                return this._value;
+            }
+            set
+            {
+                this._value = value;
+            }
+        }
 
         public QueryInfo(string info)
         {
-            this.info = info;
+            this.Info = info;
+        }
+
+        public QueryInfo(string info, string value)
+        {
+            this.Info = info;
+            this.Value = value;
+        }
+
+        public QueryInfo()
+        {
+
         }
     }
 }

@@ -69,7 +69,8 @@ namespace fileQuery20230621.Webs
                 }
             }
 
-            string fileName = DateTime.Now.ToString("yyyyMMddhhmmss");  //设置默认文件名
+            //设置默认文件名
+            string fileName = DateTime.Now.ToString("yyyyMMddhhmmss");  
             using (StreamWriter sw = new StreamWriter($"{txtFilePath.Text}//{fileName}.txt"))
             {
                 foreach (string s in selectedItems)
@@ -161,8 +162,8 @@ namespace fileQuery20230621.Webs
         void bindCheckListBox(List<QueryInfo> info)
         {
             CheckBoxList1.DataSource = info;
-            CheckBoxList1.DataTextField = "info";
-            CheckBoxList1.DataValueField = "info";
+            CheckBoxList1.DataTextField = "Info";
+            CheckBoxList1.DataValueField = "Info";
             CheckBoxList1.DataBind();
         }
     }
