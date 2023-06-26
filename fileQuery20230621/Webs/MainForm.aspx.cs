@@ -14,7 +14,9 @@ namespace fileQuery20230621.Webs
 {
     public partial class MainForm : System.Web.UI.Page
     {
+        //用于存储要搜索的文件类型
         private string[] fileTypes = { "*.txt", "*.doc", "*.docx", "*.pdf" };
+        //用于存储搜索到符合类型的文件路径
         private List<string> pathList = new List<string>();
 
         protected void Page_Load(object sender, EventArgs e)
@@ -25,7 +27,7 @@ namespace fileQuery20230621.Webs
         //浏览按钮
         protected void Button1_Click(object sender, EventArgs e)
         {
-
+            //选择目标文件并获取路径
             Thread t = new Thread((ThreadStart)(() =>
             {
                 getFilePath();
@@ -39,8 +41,11 @@ namespace fileQuery20230621.Webs
         //查找按钮
         protected void btnQuery_Click(object sender, EventArgs e)
         {
+            //用于存储绑定CheckBoxList的信息
             List<QueryInfo> checkBoxInfoList = new List<QueryInfo>();
+            //先绑定空列表用于清空之前的绑定信息
             bindCheckListBox(checkBoxInfoList);
+            //如果没有选择文件则退出
             if (txtFilePath.Text == "")
             {
                 return;
@@ -60,6 +65,7 @@ namespace fileQuery20230621.Webs
         //下载按钮
         protected void Button1_Click1(object sender, EventArgs e)
         {
+            //用于存储选中项
             List<string> selectedItems = new List<string>();
             foreach(ListItem listItem in CheckBoxList1.Items)
             {
@@ -71,6 +77,7 @@ namespace fileQuery20230621.Webs
 
             //设置默认文件名
             string fileName = DateTime.Now.ToString("yyyyMMddhhmmss");  
+            //保存文件
             using (StreamWriter sw = new StreamWriter($"{txtFilePath.Text}//{fileName}.txt"))
             {
                 foreach (string s in selectedItems)
