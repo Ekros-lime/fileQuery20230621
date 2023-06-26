@@ -169,8 +169,8 @@ namespace fileQuery20230621.Webs
         void bindCheckListBox(List<QueryInfo> info)
         {
             CheckBoxList1.DataSource = info;
-            CheckBoxList1.DataTextField = "Info";
             CheckBoxList1.DataValueField = "Info";
+            CheckBoxList1.DataTextField = "Info";
             CheckBoxList1.DataBind();
         }
     }
