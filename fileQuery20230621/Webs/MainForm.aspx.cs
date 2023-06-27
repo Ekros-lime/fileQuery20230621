@@ -186,5 +186,52 @@ namespace fileQuery20230621.Webs
             CheckBoxList1.DataValueField = "Info";
             CheckBoxList1.DataBind();
         }
+
+        //判断字符串中是否有子串
+        bool isContain(String source, String target)
+        {
+            if (source == null || target == null)
+            {
+                return false;
+            }
+            //原字符串长度小于目标字符串时
+            if (source.Length < target.Length)
+            {
+                return false;
+            }
+            //原字符串长度和目标字符串长度一致时
+            if (source.Length == target.Length && !source.Equals(target))
+            {
+                return false;
+            }
+            if (source.Equals(target))
+            {
+                return true;
+            }
+            char[] sourceChars = source.ToCharArray();
+            char[] targetChars = target.ToCharArray();
+            int k = 0;
+            //循环遍历字符数组,找到第一个符合条件的,如果剩余长度大于目标字符串,就继续往下匹配,否则停止
+            for (int i = 0; i < sourceChars.Length - target.Length + 1; i++)
+            {
+                k = 0;
+                for (int j = 0, b = i; j < targetChars.Length && b < sourceChars.Length; j++, b++)
+                {
+                    if (sourceChars[b] == targetChars[j])
+                    {
+                        k++;
+                        if (k == targetChars.Length)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
