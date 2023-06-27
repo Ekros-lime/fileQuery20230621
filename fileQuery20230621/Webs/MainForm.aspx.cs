@@ -5,17 +5,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
-using MSW = Microsoft.Office.Interop.Word;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using NPOI.XWPF.UserModel;
 
 namespace fileQuery20230621.Webs
 {
     public partial class MainForm : System.Web.UI.Page
     {
         //用于存储要搜索的文件类型
-        private string[] fileTypes = { "*.txt", "*.doc", "*.docx", "*.pdf" };
+        private string[] fileTypes = { "*.txt", "*.docx", "*.pdf" };
         //用于存储搜索到符合类型的文件路径
         private List<string> pathList = new List<string>();
 
@@ -149,9 +149,22 @@ namespace fileQuery20230621.Webs
                         }
                     }
                 }
-                else if(s.Substring(s.Length -4,4) == ".doc" || s.Substring(s.Length - 5, 5) == "docx")
+                else if(s.Substring(s.Length - 5, 5) == ".docx")
                 {
-
+                    Stream stream = File.OpenRead(s);
+                    //如果读取文件的内容为空则跳过
+                    if (stream.Length == 0) continue;
+                    XWPFDocument doc = new XWPFDocument(stream);
+                    foreach (var wLine in doc.Paragraphs)
+                    {
+                        line = wLine.ParagraphText;
+                        lineNum++;
+                        if (line.Contains(txtQueryText.Text))
+                        {
+                            isGetText = true;
+                            boxInfo += $"{lineNum} {line}<br>";
+                        }
+                    }
                 }
 
                 boxInfo = boxInfo.Replace(txtQueryText.Text, $"<span style=\"color:red\">{txtQueryText.Text}</span>");
@@ -169,8 +182,8 @@ namespace fileQuery20230621.Webs
         void bindCheckListBox(List<QueryInfo> info)
         {
             CheckBoxList1.DataSource = info;
-            CheckBoxList1.DataValueField = "Info";
             CheckBoxList1.DataTextField = "Info";
+            CheckBoxList1.DataValueField = "Info";
             CheckBoxList1.DataBind();
         }
     }
