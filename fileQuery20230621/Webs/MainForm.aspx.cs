@@ -188,39 +188,37 @@ namespace fileQuery20230621.Webs
         }
 
         //判断字符串中是否有子串
-        bool isContain(String source, String target)
+        bool isContain(String str, String key)
         {
-            if (source == null || target == null)
+            if (str == null || key == null)
             {
                 return false;
             }
-            //原字符串长度小于目标字符串时
-            if (source.Length < target.Length)
+            if (str.Length < key.Length)
             {
                 return false;
             }
-            //原字符串长度和目标字符串长度一致时
-            if (source.Length == target.Length && !source.Equals(target))
+            if (str.Length == key.Length && !str.Equals(key))
             {
                 return false;
             }
-            if (source.Equals(target))
+            if (str.Equals(key))
             {
                 return true;
             }
-            char[] sourceChars = source.ToCharArray();
-            char[] targetChars = target.ToCharArray();
+            char[] strChars = str.ToCharArray();
+            char[] keyChars = key.ToCharArray();
             int k = 0;
-            //循环遍历字符数组,找到第一个符合条件的,如果剩余长度大于目标字符串,就继续往下匹配,否则停止
-            for (int i = 0; i < sourceChars.Length - target.Length + 1; i++)
+            
+            for (int i = 0; i < strChars.Length - key.Length + 1; i++)
             {
                 k = 0;
-                for (int j = 0, b = i; j < targetChars.Length && b < sourceChars.Length; j++, b++)
+                for (int j = 0, b = i; j < keyChars.Length && b < strChars.Length; j++, b++)
                 {
-                    if (sourceChars[b] == targetChars[j])
+                    if (strChars[b] == keyChars[j])
                     {
                         k++;
-                        if (k == targetChars.Length)
+                        if (k == keyChars.Length)
                         {
                             return true;
                         }
