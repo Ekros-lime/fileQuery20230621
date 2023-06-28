@@ -22,25 +22,18 @@ namespace fileQuery20230621.Webs
         private string[] fileTypes = { "*.txt", "*.docx", "*.pdf" };
         //用于存储搜索到符合类型的文件路径
         private List<string> pathList = new List<string>();
+        //用于存储上级目录
+        private static Stack<string> lastPath = new Stack<string>();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         //浏览按钮
         protected void Button1_Click(object sender, EventArgs e)
         {
-            //选择目标文件并获取路径
-            Thread t = new Thread((ThreadStart)(() =>
-            {
-                getFilePath();
-            }
-            ));
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-            t.Join();
+            getFilePath();
         }
         //查找按钮
         protected void btnQuery_Click(object sender, EventArgs e)
@@ -101,22 +94,17 @@ namespace fileQuery20230621.Webs
 
         }
 
-        //获取所选文件路径
+        //获取根目录路径并绑定DataList
         string getFilePath()
         {
             string path = "";
-
+            List<PathInfo> pathBindList = new List<PathInfo>();
             var drives = DriveInfo.GetDrives();
             foreach (var drive in drives) {
-                drive.RootDirectory.ToString();
+                PathInfo temp = new PathInfo(drive.Name, drive.RootDirectory.ToString());
+                pathBindList.Add(temp);
             };
-
-            Button btn = new Button();
-            btn.Text = "tes";
-            btn.Width = 30;
-            btn.Height = 30;
-            this.div1.Controls.Add(btn);
-
+            bindDataList(pathBindList);
             return path;
         }
 
@@ -241,13 +229,20 @@ namespace fileQuery20230621.Webs
 
             return checkBoxInfoList;
         }
-        //绑定数据
+        //绑定CheckBoxList数据
         void bindCheckListBox(List<QueryInfo> info)
         {
             CheckBoxList1.DataSource = info;
             CheckBoxList1.DataTextField = "Info";
             CheckBoxList1.DataValueField = "Info";
             CheckBoxList1.DataBind();
+        }
+        
+        //绑定DataList数据 TODO:
+        void bindDataList(List<PathInfo> info)
+        {
+            DataList1.DataSource = info;
+            DataList1.DataBind();
         }
 
         //判断字符串中是否有子串
@@ -293,9 +288,65 @@ namespace fileQuery20230621.Webs
                 }
             }
             return false;
-        }       
+        }
+        //DataList1事件响应
+        protected void DataList1_ItemCommand(object source, DataListCommandEventArgs e)
+        {
+            //进入按钮
+            if(e.CommandName == "enter")
+            {
+                string nowPath = Convert.ToString(e.CommandArgument);
+                Response.Write($"enter {nowPath}");
+                List<PathInfo> pathBindList = getNewPathList(nowPath, false);
+                bindDataList(pathBindList);
+            }
+            //选则按钮
+            else if(e.CommandName == "chose")
+            {
+                string nowPath = Convert.ToString(e.CommandArgument);
+                //Response.Write($"chose {nowPath}");
+                txtFilePath.Text = nowPath;
+            }
+        }
 
         //获取指定文件目录下的文件内容
+        List<PathInfo> getNewPathList(string path, bool isBack)
+        {
+            if (!isBack)
+            {
+                lastPath.Push(path);
+            }
+            List<PathInfo> pathBindList = new List<PathInfo>();
+            DirectoryInfo root = new DirectoryInfo(path);
+            
+            foreach (DirectoryInfo d in root.GetDirectories())
+            {
+                string name = d.Name;
+                string fullName = d.FullName;
+                PathInfo temp = new PathInfo(name, fullName);
+                pathBindList.Add(temp);
+            }
+            return pathBindList;
+        }
 
+        //返回上级目录按钮
+        protected void Button4_Click(object sender, EventArgs e)
+        {
+            if(lastPath.Count == 0)
+            {
+                Response.Write("没有上级目录");
+                return;
+            }
+            List<PathInfo> pathBindList = new List<PathInfo>();
+            lastPath.Pop();
+            if(lastPath.Count == 0)
+            {
+                getFilePath();
+                return;
+            }
+            //Response.Write($"num:{lastPath.Count};path:{lastPath.Peek()}");
+            pathBindList = getNewPathList(lastPath.Peek(), true);
+            bindDataList(pathBindList);
+        }
     }
 }
