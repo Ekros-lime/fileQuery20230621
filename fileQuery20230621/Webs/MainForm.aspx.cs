@@ -9,6 +9,10 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using NPOI.XWPF.UserModel;
+using iText.Kernel.Pdf;
+using System.Text;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.Kernel.Pdf.Canvas.Parser;
 
 namespace fileQuery20230621.Webs
 {
@@ -142,7 +146,7 @@ namespace fileQuery20230621.Webs
                     while ((line = file.ReadLine()) != null)
                     {
                         lineNum++;
-                        if (line.Contains(txtQueryText.Text))
+                        if (isContain(line, txtQueryText.Text))
                         {
                             isGetText = true;
                             boxInfo += $"{lineNum} {line}<br>";
@@ -159,12 +163,29 @@ namespace fileQuery20230621.Webs
                     {
                         line = wLine.ParagraphText;
                         lineNum++;
-                        if (line.Contains(txtQueryText.Text))
+                        if (isContain(line, txtQueryText.Text))
                         {
                             isGetText = true;
                             boxInfo += $"{lineNum} {line}<br>";
                         }
                     }
+                }
+                else if(s.Substring(s.Length - 4, 4) == ".pdf")
+                {
+                    PdfReader pr = new PdfReader(s);
+                    PdfDocument pd = new PdfDocument(pr);
+                    StringBuilder sb = new StringBuilder();
+
+                    int count = pd.GetNumberOfPages();
+                    for(int i = 1; i <= count; i++)
+                    {
+                        PdfPage pp = pd.GetPage(i);
+                        ITextExtractionStrategy tes = new LocationTextExtractionStrategy();
+                        string text = PdfTextExtractor.GetTextFromPage(pp, tes);
+                        sb.Append(text);
+                    }
+                    pd.Close();
+                    Response.Write(sb.ToString());
                 }
 
                 boxInfo = boxInfo.Replace(txtQueryText.Text, $"<span style=\"color:red\">{txtQueryText.Text}</span>");
