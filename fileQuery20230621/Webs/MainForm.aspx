@@ -9,11 +9,17 @@
 </head>
 <body>
     <form id="form1" runat="server">
+        <asp:Label ID="Label1" runat="server" Text="文件检索"></asp:Label>
         <div>
-            <asp:TextBox ID="txtFilePath" runat="server"></asp:TextBox>
+            <asp:Label ID="Label2" runat="server" Text="选则目录"></asp:Label>
+            <asp:TextBox ID="txtFilePath" runat="server" ReadOnly="true"></asp:TextBox>
             <asp:Button ID="btnSelect" runat="server" Text="浏览" OnClick="Button1_Click" />
         </div>
+        <div id="div1" runat="server">
+
+        </div>
         <div>
+            <asp:Label ID="Label3" runat="server" Text="所需查找的内容"></asp:Label>
             <asp:TextBox ID="txtQueryText" runat="server"></asp:TextBox>
             <asp:Button ID="btnQuery" runat="server" Text="查找" OnClick="btnQuery_Click" />
         </div>

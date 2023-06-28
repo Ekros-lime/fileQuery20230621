@@ -69,6 +69,12 @@ namespace fileQuery20230621.Webs
         //下载按钮
         protected void Button1_Click1(object sender, EventArgs e)
         {
+            //如果没有选中项则退出
+            if(CheckBoxList1.SelectedIndex == -1)
+            {
+                return;
+            }
+            
             //用于存储选中项
             List<string> selectedItems = new List<string>();
             foreach(ListItem listItem in CheckBoxList1.Items)
@@ -100,12 +106,16 @@ namespace fileQuery20230621.Webs
         {
             string path = "";
 
-            System.Windows.Forms.FolderBrowserDialog fbd = new System.Windows.Forms.FolderBrowserDialog();
-            if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                path = fbd.SelectedPath;
-                txtFilePath.Text = path;
-            }
+            var drives = DriveInfo.GetDrives();
+            foreach (var drive in drives) {
+                drive.RootDirectory.ToString();
+            };
+
+            Button btn = new Button();
+            btn.Text = "tes";
+            btn.Width = 30;
+            btn.Height = 30;
+            this.div1.Controls.Add(btn);
 
             return path;
         }
@@ -135,6 +145,7 @@ namespace fileQuery20230621.Webs
             {
                 string line;
                 string titleTxt = s + "<br>----------------------<br>";
+                string fileEnd = "======================<br>";
                 string boxInfo = "";
                 int lineNum = 0;
                 bool isGetText = false;
@@ -172,6 +183,10 @@ namespace fileQuery20230621.Webs
                 }
                 else if(s.Substring(s.Length - 4, 4) == ".pdf")
                 {
+                    //Response.Write(s);
+                    Stream stream = File.OpenRead(s);
+                    //如果读取文件的内容为空则跳过
+                    if (stream.Length == 0) continue;
                     PdfReader pr = new PdfReader(s);
                     PdfDocument pd = new PdfDocument(pr);
                     StringBuilder sb = new StringBuilder();
@@ -185,11 +200,38 @@ namespace fileQuery20230621.Webs
                         sb.Append(text);
                     }
                     pd.Close();
-                    Response.Write(sb.ToString());
+                    //Response.Write(sb.ToString());
+                    string all = sb.ToString();
+                    line = "";
+                    foreach(var c in all)
+                    {
+                        if(c != '\n')
+                        {
+                            line += c;
+                        }
+                        else
+                        {
+                            lineNum++;
+                            if (isContain(line, txtQueryText.Text))
+                            {
+                                isGetText = true;
+                                boxInfo += $"{lineNum} {line}<br>";
+                            }
+                            line = "";
+                        }
+                    }
+                    //判断最后一行
+                    lineNum++;
+                    if (isContain(line, txtQueryText.Text))
+                    {
+                        isGetText = true;
+                        boxInfo += $"{lineNum} {line}<br>";
+                    }
                 }
 
                 boxInfo = boxInfo.Replace(txtQueryText.Text, $"<span style=\"color:red\">{txtQueryText.Text}</span>");
                 boxInfo = titleTxt + boxInfo;
+                boxInfo += fileEnd;
                 //文件中查找到对应的字符串
                 if (isGetText)
                 {
@@ -251,6 +293,9 @@ namespace fileQuery20230621.Webs
                 }
             }
             return false;
-        }
+        }       
+
+        //获取指定文件目录下的文件内容
+
     }
 }
