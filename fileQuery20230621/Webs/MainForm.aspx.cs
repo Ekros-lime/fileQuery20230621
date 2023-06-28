@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Reflection;
 using System.Web;
 using System.Web.UI;
@@ -20,6 +18,8 @@ namespace fileQuery20230621.Webs
     {
         //用于存储要搜索的文件类型
         private string[] fileTypes = { "*.txt", "*.docx", "*.pdf" };
+        //链接数据库
+        private string conStr = "server=127.0.0.1;port=3306;user=root;password=123456; database=filematch;";
         //用于存储搜索到符合类型的文件路径
         private List<string> pathList = new List<string>();
         //用于存储上级目录
@@ -43,7 +43,7 @@ namespace fileQuery20230621.Webs
             //先绑定空列表用于清空之前的绑定信息
             bindCheckListBox(checkBoxInfoList);
             //如果没有选择文件则退出
-            if (txtFilePath.Text == "")
+            if (txtFilePath.Text == "" || txtQueryText.Text == "")
             {
                 return;
             }
@@ -111,19 +111,47 @@ namespace fileQuery20230621.Webs
         //根据fileTypes中的文件类型在指定目录下查找文件
         List<string> getFileInfo(string path)
         {
+            MysqlManager mm = new MysqlManager(conStr);
             List<string> filePaths = new List<string>();
-            foreach (string type in fileTypes)
+            string origin = path.Replace("\\", "\\\\");
+            string queryStr = $"SELECT filePath FROM `queryfilepath` WHERE originFilePath = '{origin}'";
+            mm.OpQueryMySql(queryStr);
+            if (mm.queryList.Count != 0)
             {
-                string[] files = Directory.GetFiles(path, type, SearchOption.AllDirectories);
-                Console.WriteLine($"{type}:");
-                foreach (string file in files)
+                foreach (string[] s in mm.queryList)
                 {
-                    filePaths.Add(file);
+                    Console.WriteLine(s[0]);
+                    filePaths.Add(s[0]);
                 }
+            }
+            else
+            {
+                
+                foreach (string type in fileTypes)
+                {
+                    string[] files = Directory.GetFiles(path, type, SearchOption.AllDirectories);
+                    //Console.WriteLine($"{type}:");
+                    foreach (string file in files)
+                    {
+                        filePaths.Add(file);
+                    }
+                }
+                savePath2DataBase(filePaths, path);
+
+                //List<string> filePaths = new List<string>();
+                //foreach (string type in fileTypes)
+                //{
+                //    string[] files = Directory.GetFiles(path, type, SearchOption.AllDirectories);
+                //    Console.WriteLine($"{type}:");
+                //    foreach (string file in files)
+                //    {
+                //        filePaths.Add(file);
+                //    }
+                //}
+                //return filePaths;
             }
             return filePaths;
         }
-
         //在文件查找指定字符串所在行
         List<QueryInfo> getQueryInfoList(List<string> pathList)
         {
@@ -296,7 +324,7 @@ namespace fileQuery20230621.Webs
             if(e.CommandName == "enter")
             {
                 string nowPath = Convert.ToString(e.CommandArgument);
-                Response.Write($"enter {nowPath}");
+                //Response.Write($"enter {nowPath}");
                 List<PathInfo> pathBindList = getNewPathList(nowPath, false);
                 bindDataList(pathBindList);
             }
@@ -334,7 +362,7 @@ namespace fileQuery20230621.Webs
         {
             if(lastPath.Count == 0)
             {
-                Response.Write("没有上级目录");
+                //Response.Write("没有上级目录");
                 return;
             }
             List<PathInfo> pathBindList = new List<PathInfo>();
@@ -347,6 +375,34 @@ namespace fileQuery20230621.Webs
             //Response.Write($"num:{lastPath.Count};path:{lastPath.Peek()}");
             pathBindList = getNewPathList(lastPath.Peek(), true);
             bindDataList(pathBindList);
+        }
+
+        //存入数据库
+        bool savePath2DataBase(List<string> paths, string originFilePath)
+        {
+            MysqlManager mm = new MysqlManager(conStr);
+
+            string origin = originFilePath.Replace("\\", "\\\\");
+            //string delStr = $"DELETE FROM `queryfilepath`";
+            //mm.OpAddDeleUpdateMySql(delStr);
+            //if (mm.manageFlag)
+            //{
+            //    mm.manageFlag = false;
+            //}
+
+            foreach (string s in paths)
+            {
+                string temp = s.Replace("\\", "\\\\");
+                string addStr = $"INSERT `queryfilepath`(filepath, originFilePath) VALUE('{temp}', '{origin}')";
+                mm.OpAddDeleUpdateMySql(addStr);
+            }
+
+            if (mm.manageFlag)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
