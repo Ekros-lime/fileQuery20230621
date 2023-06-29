@@ -26,29 +26,7 @@ namespace fileQuery20230621
         }
 
 
-        //数据库增删改
-        public void OpAddDeleUpdateMySql(string opStr)
-        {
-            try
-            {
-                msc = new MySqlConnection(conStr);
-                msco = new MySqlCommand(opStr, this.msc);
-                msc.Open();
-                msco.ExecuteNonQuery();
-                manageFlag = true;
-            }
-            catch
-            {
-                manageFlag = false;
-                //操作失败
-            }
-            finally
-            {
-                msco.Dispose();
-                msc.Close();
-            }
-
-        }
+       
         //数据库查询
         public void OpQueryMySql(string queryStr)
         {
@@ -81,6 +59,30 @@ namespace fileQuery20230621
                 msco.Dispose();
                 msc.Close();
             }
+        }
+
+         //数据库增删改
+        public void OpAddDeleUpdateMySql(string opStr)
+        {
+            try
+            {
+                msc = new MySqlConnection(conStr);
+                msco = new MySqlCommand(opStr, this.msc);
+                msc.Open();
+                msco.ExecuteNonQuery();
+                manageFlag = true;
+            }
+            catch
+            {
+                manageFlag = false;
+                //操作失败
+            }
+            finally
+            {
+                msco.Dispose();
+                msc.Close();
+            }
+
         }
     }
 }
